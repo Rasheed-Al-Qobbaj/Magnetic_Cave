@@ -1,43 +1,33 @@
-# TODO: 1- Change input
-# TODO: 2- Use NumPy for array calculations
-# TODO: 3- Create tie option in is_over()
-# TODO: 4- Fix the grid labeling to the 2d list
-# TODO: 5- Fix is_over() method to only check the new piece's surrounding positions
+# TODO: 1- Fix the grid labeling to the 2d list
+# TODO: 2- Fix is_over() method to only check the new piece's surrounding positions
 
+import numpy as np
 # Methods
 
 # Method to print the grid
-def grid():
+def print_grid():
     print("    A   B   C   D   E   F   G   H")
     for row in range(0, 8):
         print("  +---+---+---+---+---+---+---+---+")
-        print(8 - row, "| ", end="")
+        print(row+1, "| ", end="")
         for column in range(0, 8):
             print(position[row][column], "| ", end="")
-        print(8 - row)
+        print(row+1)
     print("  +---+---+---+---+---+---+---+---+")
     print("    A   B   C   D   E   F   G   H")
 
 
 # Method to check if the move wanted is legal
-def is_legal(position, row, column):
+def is_legal(board, row, column):
     # Checks if the space is empty
-    if position[row][column] != ' ':
+    if board[row, column] != 0:
         return False
     # Checks if it's at the edge of the board
-    if column == coordinates['a'] or column == coordinates['h']:
+    if column == columns['a'] or column == columns['h']:
         return True
 
-    # Checks if the space behind is occupied depending on which side it's placed
-    if column <= coordinates['d'] and position[row][column - 1] == " ":
-        # Edge case for if in the middle and it gravitates towards the right magnet
-        if column == 3 and position[row][column + 1] != ' ':
-            return True
-        return False
-    if column >= 4 and position[row][column + 1] == " ":
-        # Edge case for if in the middle and it gravitates towards the left magnet
-        if column == 4 and position[row][column - 1] != ' ':
-            return True
+    # Checks the column behind and in front to place a piece
+    if board[row, column-1] == 0 and board[row, column+1] == 0:
         return False
 
     # If no rule violation occurs then it's legal
@@ -45,49 +35,49 @@ def is_legal(position, row, column):
 
 
 # Method to check if the game is over
-def is_over(position, char):
+def is_over(board, turn):
     # Checking for 5 in a row vertically
     # Checks all the possible places a 5 in a row could start
     for column in range(0, 8):
         for row in range(0, 4):
-            if position[row][column] == char \
-                    and position[row + 1][column] == char \
-                    and position[row + 2][column] == char \
-                    and position[row + 3][column] == char \
-                    and position[row + 4][column] == char:
+            if board[row, column] == turn \
+                    and board[(row + 1), column] == turn \
+                    and board[(row + 2), column] == turn \
+                    and board[(row + 3), column] == turn \
+                    and board[(row + 4), column] == turn:
                 return True
 
     # Checking for 5 in a row horizontally
     # Checks all the possible places a 5 in a row could start
     for row in range(0, 8):
         for column in range(0, 4):
-            if position[row][column] == char \
-                    and position[row][column + 1] == char \
-                    and position[row][column + 2] == char \
-                    and position[row][column + 3] == char \
-                    and position[row][column + 4] == char:
+            if board[row][column] == turn \
+                    and board[row, (column + 1)] == turn \
+                    and board[row, (column + 2)] == turn \
+                    and board[row, (column + 3)] == turn \
+                    and board[row, (column + 4)] == turn:
                 return True
 
     # Checking for 5 in a row positively diagonal
     # Checks all the possible places a 5 in a row could start
     for row in range(4, 8):
         for column in range(0, 4):
-            if position[row][column] == char \
-                    and position[row - 1][column + 1] == char \
-                    and position[row - 2][column + 2] == char \
-                    and position[row - 3][column + 3] == char \
-                    and position[row - 4][column + 4] == char:
+            if board[row][column] == turn \
+                    and board[(row - 1), (column + 1)] == turn \
+                    and board[(row - 2), (column + 2)] == turn \
+                    and board[(row - 3), (column + 3)] == turn \
+                    and board[(row - 4), (column + 4)] == turn:
                 return True
 
     # Checking for 5 in a row horizontally
     # Checks all the possible places a 5 in a row could start
     for row in range(0, 4):
         for column in range(0, 4):
-            if position[row][column] == char \
-                    and position[row + 1][column + 1] == char \
-                    and position[row + 2][column + 2] == char \
-                    and position[row + 3][column + 3] == char \
-                    and position[row + 4][column + 4] == char:
+            if board[row][column] == turn \
+                    and board[(row + 1), (column + 1)] == turn \
+                    and board[(row + 2), (column + 2)] == turn \
+                    and board[(row + 3), (column + 3)] == turn \
+                    and board[(row + 4), (column + 4)] == turn:
                 return True
 
     return False
@@ -105,8 +95,11 @@ position = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
             [' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']]
 
+# Mathematical grid
+board = np.zeros((8, 8))
+
 # Hashmap for relating the character values to integers
-coordinates = {
+columns = {
     "a": 0,
     "b": 1,
     "c": 2,
@@ -118,55 +111,64 @@ coordinates = {
 }
 
 # Turns to make the code more readable
-BLACK = 0
-WHITE = 1
+BLACK = 2
+WHITE = -1
 turn = BLACK
 GAMEOVER = False
 
 # Start of the game
-print("Instructions:")
-print("1- Please enter the row as the integer shown on the grid.")
-print("2- Please enter the column as the letter shown on the grid.")
-grid()
+print("------------Magnetic Cave------------\n")
+print_grid()
 
 while not GAMEOVER:
-    # Prints whose turn it is and gets the coordinates for the place they wish to place the piece
+    # Prints whose turn it is and gets the columns for the place they wish to place the piece
     if turn == BLACK:
         print("Black")
-        # -1 To relate the integers on the grid with the array since it starts from 0
-        row = int(input("Please enter the row:")) - 1
+        coordinate = input("Please enter the coordinate (Ex. a1):")
+        row = int(coordinate[1]) - 1
         # Casefold lower-cases the input so no common input errors occur
-        temp = str.casefold(input("Please enter the column:"))
-        if coordinates.__contains__(temp):
+        temp = str.casefold(coordinate[0])
+        if columns.__contains__(temp) and row in range(0, 9):
             # Gets the value from the Hashmap based on the key entered
-            column = coordinates[temp]
-            if is_legal(position, row, column):
+            column = columns[temp]
+            if is_legal(board, row, column):
                 position[row][column] = "□"
+                board[row, column] = BLACK
                 turn = WHITE
-                GAMEOVER = is_over(position, "□")
+                GAMEOVER = is_over(board, BLACK)
             else:
                 print("Illegal move, Try again!")
         else:
-            print("Wrong Column, Try again!")
-        grid()
+            print("Index wrong, Try again!")
+        print_grid()
+        # print(board)
         if GAMEOVER:
             print("Black won!")
             break
+        if np.all(board):
+            print("Draw!")
+            break
     if turn == WHITE:
         print("White")
-        row = int(input("Please enter the row:")) - 1
-        temp = str.casefold(input("Please enter the column:"))
-        if coordinates.__contains__(temp):
-            column = coordinates[temp]
-            if is_legal(position, row, column):
+        coordinate = input("Please enter the coordinate (Ex. a1):")
+        row = int(coordinate[1]) - 1
+        temp = str.casefold(coordinate[0])
+        if columns.__contains__(temp) and row in range(0, 9):
+            column = columns[temp]
+            if is_legal(board, row, column):
                 position[row][column] = "■"
+                board[row, column] = WHITE
                 turn = BLACK
-                GAMEOVER = is_over(position, "■")
+                GAMEOVER = is_over(board, WHITE)
             else:
                 print("Illegal move, Try again!")
         else:
             print("Wrong Column, Try again!")
-        grid()
+        print_grid()
+        # print(board)
         if GAMEOVER:
             print("White won!")
+            break
+        if np.all(board):
+            print("Draw!")
             break
