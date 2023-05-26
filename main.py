@@ -2,6 +2,8 @@
 # TODO: 2- Fix is_over() method to only check the new piece's surrounding positions
 
 import numpy as np
+
+
 # Methods
 
 # Method to print the grid
@@ -9,10 +11,10 @@ def print_grid():
     print("    A   B   C   D   E   F   G   H")
     for row in range(0, 8):
         print("  +---+---+---+---+---+---+---+---+")
-        print(row+1, "| ", end="")
+        print(row + 1, "| ", end="")
         for column in range(0, 8):
             print(position[row][column], "| ", end="")
-        print(row+1)
+        print(row + 1)
     print("  +---+---+---+---+---+---+---+---+")
     print("    A   B   C   D   E   F   G   H")
 
@@ -23,11 +25,11 @@ def is_legal(board, row, column):
     if board[row, column] != 0:
         return False
     # Checks if it's at the edge of the board
-    if column == columns['a'] or column == columns['h']:
+    if column == COLUMNS['a'] or column == COLUMNS['h']:
         return True
 
     # Checks the column behind and in front to place a piece
-    if board[row, column-1] == 0 and board[row, column+1] == 0:
+    if board[row, column - 1] == 0 and board[row, column + 1] == 0:
         return False
 
     # If no rule violation occurs then it's legal
@@ -35,6 +37,83 @@ def is_legal(board, row, column):
 
 
 # Method to check if the game is over
+
+
+def is_over2(board, turn, last_move):
+    column = last_move[0]
+    row = COLUMNS[last_move[1]]
+
+    def vertical_check():
+        tmp_column = column
+        vertical_counter = 0
+        while tmp_column < 8:
+            if board[tmp_column, row] == turn:
+                vertical_counter += 1
+                tmp_column += 1
+            else:
+                break
+        while tmp_column >= 0:
+            if board[tmp_column, row] == turn:
+                vertical_counter += 1
+                tmp_column -= 1
+            else:
+                break
+        if vertical_counter - 1 >= 5:  # -1 because the last piece is counted twice once in up and once in down
+            return True
+        else:
+            return False
+
+    def horizontal_check():
+        horizontal_counter = 0
+        tmp_row = row
+        horizontal_counter = 0
+        while tmp_row < 8:
+            if board[column, tmp_row] == turn:
+                horizontal_counter += 1
+                tmp_row += 1
+            else:
+                break
+        tmp_row = row
+        while tmp_row >= 0:
+            if board[column, tmp_row] == turn:
+                horizontal_counter += 1
+                tmp_row -= 1
+            else:
+                break
+        if horizontal_counter - 1 >= 5:  # -1 because the last piece is counted twice once in up and once in down
+            return True
+        else:
+            return False
+
+    def diagonal_check():
+
+        diagonal_counter = 0
+        tmp_row = row
+        tmp_column = column
+        while tmp_row < 8 and tmp_column < 8:
+            if board[tmp_column, tmp_row] == turn:
+                diagonal_counter += 1
+                tmp_column += 1
+                tmp_row += 1
+            else:
+                break
+        tmp_row = row
+        tmp_column = column
+        while tmp_row >= 0 and tmp_column >= 0:
+            if board[tmp_column, tmp_row] == turn:
+                diagonal_counter += 1
+                tmp_column -= 1
+                tmp_row -= 1
+            else:
+                break
+        if diagonal_counter - 1 >= 5:
+            return True
+        else:
+            return False
+
+    return vertical_check() or horizontal_check() or diagonal_check()
+
+
 def is_over(board, turn):
     # Checking for 5 in a row vertically
     # Checks all the possible places a 5 in a row could start
@@ -99,7 +178,7 @@ position = [[' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '],
 board = np.zeros((8, 8))
 
 # Hashmap for relating the character values to integers
-columns = {
+COLUMNS = {
     "a": 0,
     "b": 1,
     "c": 2,
@@ -128,9 +207,9 @@ while not GAMEOVER:
         row = int(coordinate[1]) - 1
         # Casefold lower-cases the input so no common input errors occur
         temp = str.casefold(coordinate[0])
-        if columns.__contains__(temp) and row in range(0, 9):
+        if COLUMNS.__contains__(temp) and row in range(0, 9):
             # Gets the value from the Hashmap based on the key entered
-            column = columns[temp]
+            column = COLUMNS[temp]
             if is_legal(board, row, column):
                 position[row][column] = "□"
                 board[row, column] = BLACK
@@ -153,8 +232,8 @@ while not GAMEOVER:
         coordinate = input("Please enter the coordinate (Ex. a1):")
         row = int(coordinate[1]) - 1
         temp = str.casefold(coordinate[0])
-        if columns.__contains__(temp) and row in range(0, 9):
-            column = columns[temp]
+        if COLUMNS.__contains__(temp) and row in range(0, 9):
+            column = COLUMNS[temp]
             if is_legal(board, row, column):
                 position[row][column] = "■"
                 board[row, column] = WHITE
