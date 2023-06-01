@@ -1,6 +1,7 @@
 # TODO: 1- Fix the grid labeling to the 2d list
 # TODO: 2- Fix is_over() method to only check the new piece's surrounding positions
 
+from heuristic import evaluate
 import numpy as np
 # Methods
 
@@ -111,7 +112,7 @@ columns = {
 }
 
 # Turns to make the code more readable
-BLACK = 2
+BLACK = 1
 WHITE = -1
 turn = BLACK
 GAMEOVER = False
@@ -141,6 +142,7 @@ while not GAMEOVER:
         else:
             print("Index wrong, Try again!")
         print_grid()
+        print(evaluate(board))
         # print(board)
         if GAMEOVER:
             print("Black won!")
@@ -165,6 +167,7 @@ while not GAMEOVER:
         else:
             print("Wrong Column, Try again!")
         print_grid()
+        print(evaluate(board))
         # print(board)
         if GAMEOVER:
             print("White won!")
