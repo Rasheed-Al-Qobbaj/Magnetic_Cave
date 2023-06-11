@@ -44,8 +44,12 @@ legal_moves = {}
 for i in range(0, 8):
     legal_moves[(0, i)] = True
     legal_moves[(7, i)] = True
+
+
 def update_legal_moves(column, row):
-    legal_moves.pop((row, column))
+    tmp_tuple = (row,column)
+    if tmp_tuple in legal_moves:
+        del legal_moves[tmp_tuple]
     if column - 1 >= 0:
         if board[row, column - 1] == 0:
             legal_moves[(row, column - 1)] = True
@@ -53,72 +57,48 @@ def update_legal_moves(column, row):
         if board[row, column + 1] == 0:
             legal_moves[(row, column + 1)] = True
 
-#
-# def possible_moves(board: np.ndarray) -> np.ndarray:
-#     moves = np.array([])
-#     for column in range(0, 8):
-#         for row in range(0, 8):
-#             if is_legal(row, column):
-#                 np.append(moves, (row, column))
-#                 break
-#         for row in range(7, -1, -1):
-#             if is_legal(row, column) and not moves.__contains__((row, column)):
-#                 np.append(moves, (row, column))
-#
-#                 break
-#     return moves
 
-
-def mini_max(depth_limit, max_turn: bool, board, depth=0):
-
-    if depth == depth_limit or is_over(board, 1):  # 1 will be changed prolly
-        return [evaluate(board), None]
+def mini_max(position, depth_limit, max_turn: bool, board, depth=5):
+    if depth == depth_limit or is_over(board, max_turn):  # 1 will be changed prolly
+        return evaluate(board, position), position #
 
     if max_turn:
+
         max_eval = -np.inf
         best_move = None
 
-        for move in legal_moves.keys():
+        for move in list(legal_moves.keys()):
 
-            tmp_col = move[1]
-            tmp_row = move[0]
-            board[tmp_col,tmp_row] = 1
-
-            templ = list(mini_max(depth_limit, False, board, depth + 1))
-
-            eval = templ[0]
-            tmp = templ[1]
-            board[tmp_col,tmp_row] = 0
-
-            if eval > max_eval:
+            board[move[0], move[1]] = 1  # simulate the move
+            update_legal_moves(move[0], move[1])  # update for the simulation
+            evaluation = mini_max(move, depth_limit, False, board, depth + 1)[0]
+            board[move[0], move[1]] = 0  # undo the simulation
+            update_legal_moves(move[0], move[1])
+            max_eval = max(max_eval, evaluation)
+            if evaluation == max_eval:
                 best_move = move
-
-            max_eval = max(max_eval, eval)
-        r_value = [max_eval, best_move]
-        return r_value
+        return max_eval, best_move
     else:
+
         min_eval = np.inf
         best_move = None
+
         for move in legal_moves.keys():
 
-            tmp_col = move[1]
-            tmp_row = move[0]
-            board[tmp_col, tmp_row] = 1
-
-            tmpl = list(mini_max(depth_limit, True, board, depth + 1))
-            eval = tmpl[0]
-            tmp = tmpl[1]
-            board[tmp_col,tmp_row] = 0
-            if eval < min_eval:
+            board[move[0], move[1]] = 1  # simulate the move
+            update_legal_moves(move[0], move[1])  # update for the simulation
+            evaluation = mini_max(move, depth_limit, True, board, depth + 1)[0]
+            board[move[0], move[1]] = 0  # undo the simulation
+            update_legal_moves(move[0], move[1])
+            min_eval = min(min_eval, evaluation)
+            if evaluation == min_eval:
                 best_move = move
-            min_eval = min(min_eval, eval)
-            r_value = [min_eval, best_move]
-        return r_value
+        return min_eval, best_move
 
 
 def make_move(board: np.ndarray, turn):
-    move_value, move = mini_max(3, True, board)
-    board[move] = turn
+    move_eval, move_position = mini_max(None,3, True, board)
+    board[move_position] = turn
 
 
 #
