@@ -41,9 +41,9 @@ def evaluate(board, move=0) -> int:
 
 legal_moves = {}
 
-for i in range(0, 8):
-    legal_moves[(0, i)] = True
-    legal_moves[(7, i)] = True
+for i in range(0, 8): # fir
+    legal_moves[(i, 0)] = True
+    legal_moves[(i, 7)] = True
 
 
 def update_legal_moves(column, row):
@@ -99,6 +99,10 @@ def mini_max(position, depth_limit, max_turn: bool, board, depth=5):
 def make_move(board: np.ndarray, turn):
     move_eval, move_position = mini_max(None,3, True, board)
     board[move_position] = turn
+    if turn == BLACK:
+        position[move_position[0]][move_position[1]] = "□"
+    else:
+        position[move_position[0]][move_position[1]] = "■"
 
 
 #
@@ -122,7 +126,7 @@ def is_legal(row, column):
     if board[row, column] != 0:
         return False
     # Checks if it's at the edge of the board
-    if column == columns['a'] or column == columns['h']:
+    if column == COULMNS['a'] or column == COULMNS['h']:
         return True
 
     # Checks the column behind and in front to place a piece
@@ -199,7 +203,7 @@ if __name__ == '__main__':
     board = np.zeros((8, 8))
 
     # Hashmap for relating the character values to integers
-    columns = {
+    COULMNS = {
         "a": 0,
         "b": 1,
         "c": 2,
@@ -236,14 +240,15 @@ if __name__ == '__main__':
                 row = int(coordinate[1]) - 1
                 # Casefold lower-cases the input so no common input errors occur
                 temp = str.casefold(coordinate[0])
-                if columns.__contains__(temp) and row in range(0, 9):
+                if COULMNS.__contains__(temp) and row in range(0, 9):
                     # Gets the value from the Hashmap based on the key entered
-                    column = columns[temp]
+                    column = COULMNS[temp]
                     if is_legal(row, column):
                         position[row][column] = "□"
                         board[row, column] = BLACK
                         turn = WHITE
                         GAMEOVER = is_over(board, BLACK)
+
                     else:
                         print("Illegal move, Try again!")
                 else:
@@ -262,8 +267,8 @@ if __name__ == '__main__':
                 coordinate = input("Please enter the coordinate (Ex. a1):")
                 row = int(coordinate[1]) - 1
                 temp = str.casefold(coordinate[0])
-                if columns.__contains__(temp) and row in range(0, 9):
-                    column = columns[temp]
+                if COULMNS.__contains__(temp) and row in range(0, 9):
+                    column = COULMNS[temp]
                     if is_legal(row, column):
                         position[row][column] = "■"
                         board[row, column] = WHITE
@@ -291,9 +296,9 @@ if __name__ == '__main__':
                 row = int(coordinate[1]) - 1
                 # Casefold lower-cases the input so no common input errors occur
                 temp = str.casefold(coordinate[0])
-                if columns.__contains__(temp) and row in range(0, 9):
+                if COULMNS.__contains__(temp) and row in range(0, 9):
                     # Gets the value from the Hashmap based on the key entered
-                    column = columns[temp]
+                    column = COULMNS[temp]
                     if is_legal(row, column):
                         position[row][column] = "□"
                         board[row, column] = BLACK
@@ -314,6 +319,7 @@ if __name__ == '__main__':
                     break
             if turn == WHITE:
                 make_move(board, WHITE)
+                print('test1')
                 print(board)
                 turn = BLACK
                 if GAMEOVER:
@@ -322,3 +328,5 @@ if __name__ == '__main__':
                 if np.all(board):
                     print("Draw!")
                     break
+                print_grid()
+
