@@ -2,7 +2,7 @@
 # TODO: 2- Fix is_over() method to only check the new piece's surrounding positions
 
 import numpy as np
-
+import time
 
 # Methods
 #
@@ -16,27 +16,40 @@ def evaluate(board) -> int:
         for column in range(0, 4):
             window = board[row, column:column + 5]
             score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
+            if (window[0] + window[1] + window[2] + window[3] + window[4]) == 5:
+                score = 100000
+            elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -5:
+                score = -100000
     # Vertical
     for column in range(0, 8):
         for row in range(0, 4):
             window = board[row:row + 5, column]
             score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
-
+            if row > 0:
+                if window[row-1] == window[row] and window[row+1] == window[row]:
+                    score += (50*window[row])
+            if (window[0] + window[1] + window[2] + window[3] + window[4]) == 5:
+                score = 100000
+            elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -5:
+                score = -100000
     # Diagonal
     for row in range(4, 8):
         for column in range(0, 4):
             window = board[row - 4:row + 1, column:column + 5]
             score += 1 * window[0, 0] + 2 * window[1, 1] + 3 * window[2, 2] + 2 * window[3, 3] + 1 * window[4, 4]
             score += 1 * window[4, 0] + 2 * window[3, 1] + 3 * window[2, 2] + 2 * window[1, 3] + 1 * window[0, 4]
-
+            if (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == 5 or (window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == 5:
+                score = 100000
+            elif (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == -5 or (window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == -5:
+                score = -100000
     return score
 
-    """        
-    :param board: 
-    :param turn: 
-    :param move: 
-    :return: 
-    """
+"""        
+:param board: 
+:param turn: 
+:param move: 
+:return: 
+"""
 
 
 legal_moves = {}
@@ -58,33 +71,38 @@ def update_legal_moves(column, row):
             legal_moves[(row, column + 1)] = True
 
 
-def possible_moves(board: np.ndarray) -> np.ndarray:
-    moves = np.array([])
-    for column in range(0, 8):
-        for row in range(0, 8):
+def possible_moves(board: np.ndarray):
+    moves = set()
+    for row in range(0, 8):
+        for column in range(0, 8):
             if is_legal(row, column):
-                np.append(moves, (row, column))
+                moves.add((row, column))
                 break
-        for row in range(7, -1, -1):
-            if is_legal(row, column) and not moves.__contains__((row, column)):
-                np.append(moves, (row, column))
-
+        for column in range(7, -1, -1):
+            if is_legal(row, column):
+                moves.add((row, column))
                 break
-    return moves
+
+    return list(moves)
 
 
-def mini_max(current_board_position, depth_limit, max_turn: bool, depth=5):
-    if depth == depth_limit or is_over(board, max_turn):  # 1 will be changed prolly
+def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: int):
+    if max_turn:
+        turn = 1
+    else:
+        turn = -1
+
+    if depth == depth_limit or is_over(current_board_position, turn):  # 1 will be changed prolly
         return evaluate(current_board_position), current_board_position  #
 
     if max_turn:
         max_eval = -np.inf
-        best_move = None
+        best_move = [(0, 0)]
 
         for move in possible_moves(current_board_position):
-
             current_board_position[move[0], move[1]] = 1  # simulate the move
-            evaluation = mini_max(current_board_position, depth_limit, False, depth + 1)[0]
+            evaluation, tmp = mini_max(current_board_position, depth_limit, False, (depth + 1))
+            print("MAX EVAL = ", evaluation, "DEPTH = ", depth)
             current_board_position[move[0], move[1]] = 0  # undo the simulation
             max_eval = max(max_eval, evaluation)
             if evaluation == max_eval:
@@ -93,12 +111,12 @@ def mini_max(current_board_position, depth_limit, max_turn: bool, depth=5):
     else:
 
         min_eval = np.inf
-        best_move = None
+        best_move = [(0, 0)]
 
         for move in possible_moves(current_board_position):
-
             current_board_position[move[0], move[1]] = 1  # simulate the move
-            evaluation = mini_max(current_board_position, depth_limit, True, depth + 1)[0]
+            evaluation, tmp = mini_max(current_board_position, depth_limit, True, (depth + 1))
+            print("MIN EVAL = ", evaluation, "DEPTH = ", depth)
             current_board_position[move[0], move[1]] = 0  # undo the simulation
             min_eval = min(min_eval, evaluation)
             if evaluation == min_eval:
@@ -107,12 +125,14 @@ def mini_max(current_board_position, depth_limit, max_turn: bool, depth=5):
 
 
 def make_move(board: np.ndarray, turn):
-    move_eval, move_position = mini_max(None, 3, True, board)
-    board[move_position] = turn
+    move_eval, move_position = mini_max(board, 7, True, 3)
+    row = move_position[0]
+    column = move_position[1]
+    board[row, column] = turn
     if turn == BLACK:
-        position[move_position[0]][move_position[1]] = "□"
+        position[row][column] = "□"
     else:
-        position[move_position[0]][move_position[1]] = "■"
+        position[row][column] = "■"
 
 
 #
@@ -320,7 +340,7 @@ if __name__ == '__main__':
                     print("Index wrong, Try again!")
                 print_grid()
                 print(evaluate(board))
-                print(board)
+                #print(board)
                 if GAMEOVER:
                     print("Black won!")
                     break
@@ -328,9 +348,15 @@ if __name__ == '__main__':
                     print("Draw!")
                     break
             if turn == WHITE:
+                timer_start = time.time()
                 make_move(board, WHITE)
-                print('test1')
-                print(board)
+                GAMEOVER = is_over(board, WHITE)
+                #print('test1')
+                print_grid()
+                print(evaluate(board))
+                timer_end = time.time()
+                print(timer_end - timer_start)
+                #print(board)
                 turn = BLACK
                 if GAMEOVER:
                     print("White won!")
@@ -338,4 +364,3 @@ if __name__ == '__main__':
                 if np.all(board):
                     print("Draw!")
                     break
-                print_grid()
