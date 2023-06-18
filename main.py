@@ -4,6 +4,7 @@
 import numpy as np
 import time
 
+
 # Methods
 #
 
@@ -26,8 +27,8 @@ def evaluate(board) -> int:
             window = board[row:row + 5, column]
             score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
             if row > 0:
-                if window[row-1] == window[row] and window[row+1] == window[row]:
-                    score += (50*window[row])
+                if window[row - 1] == window[row] and window[row + 1] == window[row]:
+                    score += (50 * window[row])
             if (window[0] + window[1] + window[2] + window[3] + window[4]) == 5:
                 score = 100000
             elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -5:
@@ -38,11 +39,14 @@ def evaluate(board) -> int:
             window = board[row - 4:row + 1, column:column + 5]
             score += 1 * window[0, 0] + 2 * window[1, 1] + 3 * window[2, 2] + 2 * window[3, 3] + 1 * window[4, 4]
             score += 1 * window[4, 0] + 2 * window[3, 1] + 3 * window[2, 2] + 2 * window[1, 3] + 1 * window[0, 4]
-            if (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == 5 or (window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == 5:
+            if (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == 5 or (
+                    window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == 5:
                 score = 100000
-            elif (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == -5 or (window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == -5:
+            elif (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == -5 or (
+                    window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == -5:
                 score = -100000
     return score
+
 
 """        
 :param board: 
@@ -50,7 +54,6 @@ def evaluate(board) -> int:
 :param move: 
 :return: 
 """
-
 
 legal_moves = {}
 
@@ -86,7 +89,7 @@ def possible_moves(board: np.ndarray):
     return list(moves)
 
 
-def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: int):
+def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: int, alpha, beta):
     if max_turn:
         turn = 1
     else:
@@ -101,12 +104,20 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
 
         for move in possible_moves(current_board_position):
             current_board_position[move[0], move[1]] = 1  # simulate the move
-            evaluation, tmp = mini_max(current_board_position, depth_limit, False, (depth + 1))
+            evaluation, tmp = mini_max(current_board_position, depth_limit, False, (depth + 1), alpha, beta)
+
             print("MAX EVAL = ", evaluation, "DEPTH = ", depth)
             current_board_position[move[0], move[1]] = 0  # undo the simulation
             max_eval = max(max_eval, evaluation)
+
             if evaluation == max_eval:
                 best_move = move
+
+            alpha = max(alpha, max_eval)
+
+            if alpha >= beta:
+                break
+
         return max_eval, best_move
     else:
 
@@ -114,18 +125,24 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
         best_move = [(0, 0)]
 
         for move in possible_moves(current_board_position):
-            current_board_position[move[0], move[1]] = 1  # simulate the move
-            evaluation, tmp = mini_max(current_board_position, depth_limit, True, (depth + 1))
+            current_board_position[move[0], move[1]] = -1  # simulate the move
+            evaluation, tmp = mini_max(current_board_position, depth_limit, True, (depth + 1),alpha,beta)
             print("MIN EVAL = ", evaluation, "DEPTH = ", depth)
             current_board_position[move[0], move[1]] = 0  # undo the simulation
             min_eval = min(min_eval, evaluation)
+            beta = min(beta,min_eval)
+
             if evaluation == min_eval:
                 best_move = move
+            if beta<= alpha:
+                break
+
+
         return min_eval, best_move
 
 
 def make_move(board: np.ndarray, turn):
-    move_eval, move_position = mini_max(board, 7, True, 3)
+    move_eval, move_position = mini_max(board, 7, True, 3, alpha=-np.inf, beta=np.inf)
     row = move_position[0]
     column = move_position[1]
     board[row, column] = turn
@@ -340,7 +357,7 @@ if __name__ == '__main__':
                     print("Index wrong, Try again!")
                 print_grid()
                 print(evaluate(board))
-                #print(board)
+                # print(board)
                 if GAMEOVER:
                     print("Black won!")
                     break
@@ -351,12 +368,14 @@ if __name__ == '__main__':
                 timer_start = time.time()
                 make_move(board, WHITE)
                 GAMEOVER = is_over(board, WHITE)
-                #print('test1')
+                # print('test1')
                 print_grid()
                 print(evaluate(board))
                 timer_end = time.time()
                 print(timer_end - timer_start)
-                #print(board)
+
+                # print(board)
+
                 turn = BLACK
                 if GAMEOVER:
                     print("White won!")
