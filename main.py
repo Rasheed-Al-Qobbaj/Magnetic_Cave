@@ -16,7 +16,9 @@ def evaluate(board) -> int:
     for row in range(0, 8):
         for column in range(0, 4):
             window = board[row, column:column + 5]
-            score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
+            #score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
+            zero_count = window.size - np.count_nonzero(window)
+            score += zero_count + ((np.count_nonzero(window == 1) * 2) - (np.count_nonzero(window == -1) * 2))
             if (window[0] + window[1] + window[2] + window[3] + window[4]) == 5:
                 score = 100000
             elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -5:
@@ -25,7 +27,9 @@ def evaluate(board) -> int:
     for column in range(0, 8):
         for row in range(0, 4):
             window = board[row:row + 5, column]
-            score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
+            # score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
+            zero_count = window.size - np.count_nonzero(window)
+            score += zero_count + ((np.count_nonzero(window == 1) * 2) - (np.count_nonzero(window == -1) * 2))
             if row > 0:
                 if window[row - 1] == window[row] and window[row + 1] == window[row]:
                     score += (50 * window[row])
@@ -106,7 +110,7 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
             current_board_position[move[0], move[1]] = 1  # simulate the move
             evaluation, tmp = mini_max(current_board_position, depth_limit, False, (depth + 1), alpha, beta)
 
-            print("MAX EVAL = ", evaluation, "DEPTH = ", depth)
+            #print("MAX EVAL = ", evaluation, "DEPTH = ", depth)
             current_board_position[move[0], move[1]] = 0  # undo the simulation
             max_eval = max(max_eval, evaluation)
 
@@ -127,7 +131,7 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
         for move in possible_moves(current_board_position):
             current_board_position[move[0], move[1]] = -1  # simulate the move
             evaluation, tmp = mini_max(current_board_position, depth_limit, True, (depth + 1),alpha,beta)
-            print("MIN EVAL = ", evaluation, "DEPTH = ", depth)
+            #print("MIN EVAL = ", evaluation, "DEPTH = ", depth)
             current_board_position[move[0], move[1]] = 0  # undo the simulation
             min_eval = min(min_eval, evaluation)
             beta = min(beta,min_eval)
@@ -142,7 +146,7 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
 
 
 def make_move(board: np.ndarray, turn):
-    move_eval, move_position = mini_max(board, 7, True, 3, alpha=-np.inf, beta=np.inf)
+    move_eval, move_position = mini_max(board, 4, True, 0, alpha=-np.inf, beta=np.inf)
     row = move_position[0]
     column = move_position[1]
     board[row, column] = turn
