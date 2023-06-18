@@ -334,6 +334,7 @@ if __name__ == '__main__':
                 if np.all(board):
                     print("Draw!")
                     break
+
     elif choice == 2:
         while not GAMEOVER:
             # Prints whose turn it is and gets the columns for the place they wish to place the piece
@@ -377,6 +378,57 @@ if __name__ == '__main__':
                 # print(board)
 
                 turn = BLACK
+                if GAMEOVER:
+                    print("White won!")
+                    break
+                if np.all(board):
+                    print("Draw!")
+                    break
+
+
+    elif choice == 3:
+        while not GAMEOVER:
+            # Prints whose turn it is and gets the columns for the place they wish to place the piece
+            if turn == WHITE:
+                print("white")
+                coordinate = input("Please enter the coordinate (Ex. a1):")
+                row = int(coordinate[1]) - 1
+                # Casefold lower-cases the input so no common input errors occur
+                temp = str.casefold(coordinate[0])
+                if COULMNS.__contains__(temp) and row in range(0, 9):
+                    # Gets the value from the Hashmap based on the key entered
+                    column = COULMNS[temp]
+                    if is_legal(row, column):
+                        position[row][column] = "■"
+                        board[row, column] = WHITE
+                        turn = BLACK
+                        GAMEOVER = is_over(board, WHITE)
+                    else:
+                        print("Illegal move, Try again!")
+                else:
+                    print("Index wrong, Try again!")
+                print_grid()
+                print(evaluate(board))
+                # print(board)
+                if GAMEOVER:
+                    print("Black won!")
+                    break
+                if np.all(board):
+                    print("Draw!")
+                    break
+            if turn == BLACK:
+                timer_start = time.time()
+                make_move(board, BLACK)
+                GAMEOVER = is_over(board, BLACK)
+                # print('test1')
+                print_grid()
+                print(evaluate(board))
+                timer_end = time.time()
+                print(timer_end - timer_start)
+
+                # print(board)
+
+                turn = WHITE
                 if GAMEOVER:
                     print("White won!")
                     break
