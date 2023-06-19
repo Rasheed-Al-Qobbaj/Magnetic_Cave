@@ -17,14 +17,10 @@ def evaluate(board) -> int:
         for column in range(0, 4):
             window = board[row, column:column + 5]
             score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
-        if (window[0] + window[1] + window[2] + window[3] + window[4]) == 5:
-            score += 100000
-        elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -5:
-            score += -100000
-        if (window[0] + window[1] + window[2] + window[3] + window[4]) == 4:
-            score += 10
-        elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -4:
-            score += -10
+            if (window[0] + window[1] + window[2] + window[3] + window[4]) == 5:
+                score = 100000
+            elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -5:
+                score = -100000
     # Vertical
     for column in range(0, 8):
         for row in range(0, 4):
@@ -34,13 +30,9 @@ def evaluate(board) -> int:
                 if window[row - 1] == window[row] and window[row + 1] == window[row]:
                     score += (50 * window[row])
             if (window[0] + window[1] + window[2] + window[3] + window[4]) == 5:
-                score += 100000
+                score = 100000
             elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -5:
-                score += -100000
-            if (window[0] + window[1] + window[2] + window[3] + window[4]) == 4:
-                score += 10
-            elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -4:
-                score += -10
+                score = -100000
     # Diagonal
     for row in range(4, 8):
         for column in range(0, 4):
@@ -49,18 +41,11 @@ def evaluate(board) -> int:
             score += 1 * window[4, 0] + 2 * window[3, 1] + 3 * window[2, 2] + 2 * window[1, 3] + 1 * window[0, 4]
             if (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == 5 or (
                     window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == 5:
-                score += 100000
+                score = 100000
             elif (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == -5 or (
                     window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == -5:
-                score += -100000
-            if (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == 4 or (
-                    window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == 4:
-                score += 10
-            elif (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == -4 or (
-                    window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == -4:
-                score += -10
+                score = -100000
     return score
-
 
 """        
 :param board: 
@@ -111,7 +96,8 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
 
     if depth == depth_limit:  # 1 will be changed prolly
         print("Depth Limit Reached")
-        return evaluate(current_board_position), current_board_position
+        return evaluate(current_board_position), current_board_position,
+
     elif is_over(current_board_position, turn):
         print("--------------Is Over-----------------")
         return evaluate(current_board_position), current_board_position
@@ -256,6 +242,48 @@ def is_over(board, turn):
     return False
 
 
+def ascii():
+
+    print("""
+░██╗░░░░░░░██╗███████╗██╗░░░░░░█████╗░░█████╗░███╗░░░███╗███████╗
+░██║░░██╗░░██║██╔════╝██║░░░░░██╔══██╗██╔══██╗████╗░████║██╔════╝
+░╚██╗████╗██╔╝█████╗░░██║░░░░░██║░░╚═╝██║░░██║██╔████╔██║█████╗░░
+░░████╔═████║░██╔══╝░░██║░░░░░██║░░██╗██║░░██║██║╚██╔╝██║██╔══╝░░
+░░╚██╔╝░╚██╔╝░███████╗███████╗╚█████╔╝╚█████╔╝██║░╚═╝░██║███████╗
+░░░╚═╝░░░╚═╝░░╚══════╝╚══════╝░╚════╝░░╚════╝░╚═╝░░░░░╚═╝╚══════╝
+    
+    """)
+    print("""
+    
+    
+████████╗░█████╗░
+╚══██╔══╝██╔══██╗
+░░░██║░░░██║░░██║
+░░░██║░░░██║░░██║
+░░░██║░░░╚█████╔╝
+░░░╚═╝░░░░╚════╝░    
+    
+    """)
+
+    print("""
+    
+███╗░░░███╗░█████╗░░██████╗░███╗░░██╗███████╗████████╗██╗░█████╗    ░░█████╗░░█████╗░██╗░░░██╗███████╗
+████╗░████║██╔══██╗██╔════╝░████╗░██║██╔════╝╚══██╔══╝██║██╔══██╗   ██╔══██╗██╔══██╗██║░░░██║██╔════╝
+██╔████╔██║███████║██║░░██╗░██╔██╗██║█████╗░░░░░██║░░░██║██║░░╚═╝   ██║░░╚═╝███████║╚██╗░██╔╝█████╗░░
+██║╚██╔╝██║██╔══██║██║░░╚██╗██║╚████║██╔══╝░░░░░██║░░░██║██║░░██╗   ██║░░██╗██╔══██║░╚████╔╝░██╔══╝░░
+██║░╚═╝░██║██║░░██║╚██████╔╝██║░╚███║███████╗░░░██║░░░██║╚█████╔╝   ╚█████╔╝██║░░██║░░╚██╔╝░░███████╗
+╚═╝░░░░░╚═╝╚═╝░░╚═╝░╚═════╝░╚═╝░░╚══╝╚══════╝░░░╚═╝░░░╚═╝ ░╚════╝   ░░╚════╝░╚═╝░░╚═╝░░░╚═╝░░░╚══════╝
+    """)
+
+
+def menu():
+
+    print("""
+    
+    
+    """)
+
+
 if __name__ == '__main__':
     # Initialized Variables
 
@@ -290,13 +318,15 @@ if __name__ == '__main__':
     turn = BLACK
     GAMEOVER = False
 
+    ascii()
+
+
     # Start of the game
-    print("------------Magnetic Cave------------\n")
-    print("Welcome to Magnetic Cave!")
+
     print('Select Game Mode:')
     print('1. Player vs Player')
-    print('2. Player vs AI  [BLACK]')
-    print('3. Player vs AI  [WHITE]')
+    print('2. Player [BLACK] vs AI [WHITE] ')
+    print('3. Player [WHITE] vs AI [BLACK] ')
 
     choice = int(input('Enter your choice: '))
     print_grid()
@@ -453,7 +483,10 @@ if __name__ == '__main__':
 
                 turn = WHITE
                 if GAMEOVER:
+                    print('==============================================')
                     print("Black won!")
+                    print('==============================================')
+
                     break
                 if np.all(board):
                     print("Draw!")
