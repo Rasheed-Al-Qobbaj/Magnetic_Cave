@@ -18,9 +18,9 @@ def evaluate(board) -> int:
             window = board[row, column:column + 5]
             score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
             if (window[0] + window[1] + window[2] + window[3] + window[4]) == 5:
-                score = 100000
+                score += 100000
             elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -5:
-                score = -100000
+                score += -100000
     # Vertical
     for column in range(0, 8):
         for row in range(0, 4):
@@ -30,9 +30,9 @@ def evaluate(board) -> int:
                 if window[row - 1] == window[row] and window[row + 1] == window[row]:
                     score += (50 * window[row])
             if (window[0] + window[1] + window[2] + window[3] + window[4]) == 5:
-                score = 100000
+                score += 100000
             elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -5:
-                score = -100000
+                score += -100000
     # Diagonal
     for row in range(4, 8):
         for column in range(0, 4):
@@ -41,10 +41,11 @@ def evaluate(board) -> int:
             score += 1 * window[4, 0] + 2 * window[3, 1] + 3 * window[2, 2] + 2 * window[1, 3] + 1 * window[0, 4]
             if (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == 5 or (
                     window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == 5:
-                score = 100000
+                score += 100000
             elif (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == -5 or (
                     window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == -5:
-                score = -100000
+                score +=3\
+                        -100000
     return score
 
 """        
