@@ -16,27 +16,23 @@ def evaluate(board) -> int:
     for row in range(0, 8):
         for column in range(0, 4):
             window = board[row, column:column + 5]
-            #score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
-            zero_count = window.size - np.count_nonzero(window)
-            score += zero_count + ((np.count_nonzero(window == 1) * 2) - (np.count_nonzero(window == -1) * 2))
+            score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
             if (window[0] + window[1] + window[2] + window[3] + window[4]) == 5:
-                score = 100000
+                score += 100000
             elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -5:
-                score = -100000
+                score += -100000
     # Vertical
     for column in range(0, 8):
         for row in range(0, 4):
             window = board[row:row + 5, column]
-            # score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
-            zero_count = window.size - np.count_nonzero(window)
-            score += zero_count + ((np.count_nonzero(window == 1) * 2) - (np.count_nonzero(window == -1) * 2))
+            score += 1 * window[0] + 2 * window[1] + 3 * window[2] + 2 * window[3] + 1 * window[4]
             if row > 0:
                 if window[row - 1] == window[row] and window[row + 1] == window[row]:
                     score += (50 * window[row])
             if (window[0] + window[1] + window[2] + window[3] + window[4]) == 5:
-                score = 100000
+                score += 100000
             elif (window[0] + window[1] + window[2] + window[3] + window[4]) == -5:
-                score = -100000
+                score += -100000
     # Diagonal
     for row in range(4, 8):
         for column in range(0, 4):
@@ -45,12 +41,12 @@ def evaluate(board) -> int:
             score += 1 * window[4, 0] + 2 * window[3, 1] + 3 * window[2, 2] + 2 * window[1, 3] + 1 * window[0, 4]
             if (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == 5 or (
                     window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == 5:
-                score = 100000
+                score += 100000
             elif (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == -5 or (
                     window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == -5:
-                score = -100000
+                score +=3\
+                        -100000
     return score
-
 
 """        
 :param board: 
@@ -99,9 +95,13 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
     else:
         turn = -1
 
-    if depth == depth_limit or is_over(current_board_position, turn):  # 1 will be changed prolly
-        return evaluate(current_board_position), current_board_position  #
+    if depth == depth_limit:  # 1 will be changed prolly
+        print("Depth Limit Reached")
+        return evaluate(current_board_position), current_board_position,
 
+    elif is_over(current_board_position, turn):
+        print("--------------Is Over-----------------")
+        return evaluate(current_board_position), current_board_position
     if max_turn:
         max_eval = -np.inf
         best_move = [(0, 0)]
@@ -110,7 +110,7 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
             current_board_position[move[0], move[1]] = 1  # simulate the move
             evaluation, tmp = mini_max(current_board_position, depth_limit, False, (depth + 1), alpha, beta)
 
-            #print("MAX EVAL = ", evaluation, "DEPTH = ", depth)
+            print("MAX EVAL = ", evaluation, "DEPTH = ", depth)
             current_board_position[move[0], move[1]] = 0  # undo the simulation
             max_eval = max(max_eval, evaluation)
 
@@ -131,13 +131,15 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
         for move in possible_moves(current_board_position):
             current_board_position[move[0], move[1]] = -1  # simulate the move
             evaluation, tmp = mini_max(current_board_position, depth_limit, True, (depth + 1),alpha,beta)
-            #print("MIN EVAL = ", evaluation, "DEPTH = ", depth)
+            print("MIN EVAL = ", evaluation, "DEPTH = ", depth)
             current_board_position[move[0], move[1]] = 0  # undo the simulation
             min_eval = min(min_eval, evaluation)
-            beta = min(beta,min_eval)
 
             if evaluation == min_eval:
                 best_move = move
+
+            beta = min(beta,min_eval)
+
             if beta<= alpha:
                 break
 
@@ -146,7 +148,11 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
 
 
 def make_move(board: np.ndarray, turn):
-    move_eval, move_position = mini_max(board, 4, True, 0, alpha=-np.inf, beta=np.inf)
+    if turn == 1:
+        max_turn = False
+    else:
+        max_turn = True
+    move_eval, move_position = mini_max(board, 3, max_turn, 0, alpha=-np.inf, beta=np.inf)
     row = move_position[0]
     column = move_position[1]
     board[row, column] = turn
@@ -237,6 +243,48 @@ def is_over(board, turn):
     return False
 
 
+def ascii():
+
+    print("""
+░██╗░░░░░░░██╗███████╗██╗░░░░░░█████╗░░█████╗░███╗░░░███╗███████╗
+░██║░░██╗░░██║██╔════╝██║░░░░░██╔══██╗██╔══██╗████╗░████║██╔════╝
+░╚██╗████╗██╔╝█████╗░░██║░░░░░██║░░╚═╝██║░░██║██╔████╔██║█████╗░░
+░░████╔═████║░██╔══╝░░██║░░░░░██║░░██╗██║░░██║██║╚██╔╝██║██╔══╝░░
+░░╚██╔╝░╚██╔╝░███████╗███████╗╚█████╔╝╚█████╔╝██║░╚═╝░██║███████╗
+░░░╚═╝░░░╚═╝░░╚══════╝╚══════╝░╚════╝░░╚════╝░╚═╝░░░░░╚═╝╚══════╝
+    
+    """)
+    print("""
+    
+    
+████████╗░█████╗░
+╚══██╔══╝██╔══██╗
+░░░██║░░░██║░░██║
+░░░██║░░░██║░░██║
+░░░██║░░░╚█████╔╝
+░░░╚═╝░░░░╚════╝░    
+    
+    """)
+
+    print("""
+    
+███╗░░░███╗░█████╗░░██████╗░███╗░░██╗███████╗████████╗██╗░█████╗    ░░█████╗░░█████╗░██╗░░░██╗███████╗
+████╗░████║██╔══██╗██╔════╝░████╗░██║██╔════╝╚══██╔══╝██║██╔══██╗   ██╔══██╗██╔══██╗██║░░░██║██╔════╝
+██╔████╔██║███████║██║░░██╗░██╔██╗██║█████╗░░░░░██║░░░██║██║░░╚═╝   ██║░░╚═╝███████║╚██╗░██╔╝█████╗░░
+██║╚██╔╝██║██╔══██║██║░░╚██╗██║╚████║██╔══╝░░░░░██║░░░██║██║░░██╗   ██║░░██╗██╔══██║░╚████╔╝░██╔══╝░░
+██║░╚═╝░██║██║░░██║╚██████╔╝██║░╚███║███████╗░░░██║░░░██║╚█████╔╝   ╚█████╔╝██║░░██║░░╚██╔╝░░███████╗
+╚═╝░░░░░╚═╝╚═╝░░╚═╝░╚═════╝░╚═╝░░╚══╝╚══════╝░░░╚═╝░░░╚═╝ ░╚════╝   ░░╚════╝░╚═╝░░╚═╝░░░╚═╝░░░╚══════╝
+    """)
+
+
+def menu():
+
+    print("""
+    
+    
+    """)
+
+
 if __name__ == '__main__':
     # Initialized Variables
 
@@ -271,13 +319,15 @@ if __name__ == '__main__':
     turn = BLACK
     GAMEOVER = False
 
+    ascii()
+
+
     # Start of the game
-    print("------------Magnetic Cave------------\n")
-    print("Welcome to Magnetic Cave!")
+
     print('Select Game Mode:')
     print('1. Player vs Player')
-    print('2. Player vs AI  [BLACK]')
-    print('3. Player vs AI  [WHITE]')
+    print('2. Player [BLACK] vs AI [WHITE] ')
+    print('3. Player [WHITE] vs AI [BLACK] ')
 
     choice = int(input('Enter your choice: '))
     print_grid()
@@ -415,7 +465,7 @@ if __name__ == '__main__':
                 print(evaluate(board))
                 # print(board)
                 if GAMEOVER:
-                    print("Black won!")
+                    print("White won!")
                     break
                 if np.all(board):
                     print("Draw!")
@@ -434,7 +484,10 @@ if __name__ == '__main__':
 
                 turn = WHITE
                 if GAMEOVER:
-                    print("White won!")
+                    print('==============================================')
+                    print("Black won!")
+                    print('==============================================')
+
                     break
                 if np.all(board):
                     print("Draw!")
