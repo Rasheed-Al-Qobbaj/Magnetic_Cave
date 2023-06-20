@@ -44,8 +44,7 @@ def evaluate(board) -> int:
                 score += 100000
             elif (window[0, 0] + window[1, 1] + window[2, 2] + window[3, 3] + window[4, 4]) == -5 or (
                     window[4, 0] + window[3, 1] + window[2, 2] + window[1, 3] + window[0, 4]) == -5:
-                score +=3\
-                        -100000
+                score += -100000
     return score
 
 """        
@@ -96,11 +95,11 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
         turn = -1
 
     if depth == depth_limit:  # 1 will be changed prolly
-        print("Depth Limit Reached")
+        #print("Depth Limit Reached")
         return evaluate(current_board_position), current_board_position,
 
     elif is_over(current_board_position, turn):
-        print("--------------Is Over-----------------")
+        #print("--------------Is Over-----------------")
         return evaluate(current_board_position), current_board_position
     if max_turn:
         max_eval = -np.inf
@@ -110,7 +109,8 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
             current_board_position[move[0], move[1]] = 1  # simulate the move
             evaluation, tmp = mini_max(current_board_position, depth_limit, False, (depth + 1), alpha, beta)
 
-            print("MAX EVAL = ", evaluation, "DEPTH = ", depth)
+            #print("MAX EVAL = ", evaluation, "DEPTH = ", depth)
+            #print(".", end="")
             current_board_position[move[0], move[1]] = 0  # undo the simulation
             max_eval = max(max_eval, evaluation)
 
@@ -131,7 +131,8 @@ def mini_max(current_board_position, depth_limit: int, max_turn: bool, depth: in
         for move in possible_moves(current_board_position):
             current_board_position[move[0], move[1]] = -1  # simulate the move
             evaluation, tmp = mini_max(current_board_position, depth_limit, True, (depth + 1),alpha,beta)
-            print("MIN EVAL = ", evaluation, "DEPTH = ", depth)
+            #print("MIN EVAL = ", evaluation, "DEPTH = ", depth)
+            #print(".", end="")
             current_board_position[move[0], move[1]] = 0  # undo the simulation
             min_eval = min(min_eval, evaluation)
 
@@ -152,10 +153,12 @@ def make_move(board: np.ndarray, turn):
         max_turn = False
     else:
         max_turn = True
+
     move_eval, move_position = mini_max(board, 3, max_turn, 0, alpha=-np.inf, beta=np.inf)
     row = move_position[0]
     column = move_position[1]
     board[row, column] = turn
+    #print(row, column)
     if turn == BLACK:
         position[row][column] = "□"
     else:
@@ -329,7 +332,19 @@ if __name__ == '__main__':
     print('2. Player [BLACK] vs AI [WHITE] ')
     print('3. Player [WHITE] vs AI [BLACK] ')
 
-    choice = int(input('Enter your choice: '))
+    choice = input('Enter your choice: ')
+    if len(choice) == 1 and 48 <= ord(choice) <= 57:
+        choice = int(choice)
+    else:
+        print("Invalid choice")
+
+    while choice not in range(1,4):
+        choice = input('Enter your choice: ')
+        if len(choice) == 1 and 48 <= ord(choice) <= 57:
+            choice = int(choice)
+        else:
+            print("Invalid choice")
+
     print_grid()
 
     if choice == 1:
@@ -338,56 +353,66 @@ if __name__ == '__main__':
             if turn == BLACK:
                 print("Black")
                 coordinate = input("Please enter the coordinate (Ex. a1):")
-                row = int(coordinate[1]) - 1
-                # Casefold lower-cases the input so no common input errors occur
-                temp = str.casefold(coordinate[0])
-                if COULMNS.__contains__(temp) and row in range(0, 9):
-                    # Gets the value from the Hashmap based on the key entered
-                    column = COULMNS[temp]
-                    if is_legal(row, column):
-                        position[row][column] = "□"
-                        board[row, column] = BLACK
-                        turn = WHITE
-                        GAMEOVER = is_over(board, BLACK)
-
-                    else:
-                        print("Illegal move, Try again!")
+                if len(coordinate) != 2 or not 48 < ord(coordinate[1]) < 57:  # To check for repeated characters
+                    print("Incorrect input, Try again!")
                 else:
-                    print("Index wrong, Try again!")
-                print_grid()
-                print(evaluate(board))
-                # print(board)
-                if GAMEOVER:
-                    print("Black won!")
-                    break
-                if np.all(board):
-                    print("Draw!")
-                    break
+                    row = int(coordinate[1]) - 1
+                    # Casefold lower-cases the input so no common input errors occur
+                    temp = str.casefold(coordinate[0])
+                    if COULMNS.__contains__(temp) and row in range(0, 9):
+                        # Gets the value from the Hashmap based on the key entered
+                        column = COULMNS[temp]
+                        if is_legal(row, column):
+                            position[row][column] = "□"
+                            board[row, column] = BLACK
+                            turn = WHITE
+                            GAMEOVER = is_over(board, BLACK)
+
+                        else:
+                            print("Illegal move, Try again!")
+                    else:
+                        print("Index wrong, Try again!")
+                    print_grid()
+                    print(evaluate(board))
+                    # print(board)
+                    if GAMEOVER:
+                        print('==============================================')
+                        print("Black won!")
+                        print('==============================================')
+                        break
+                    if np.all(board):
+                        print("Draw!")
+                        break
             if turn == WHITE:
                 print("White")
                 coordinate = input("Please enter the coordinate (Ex. a1):")
-                row = int(coordinate[1]) - 1
-                temp = str.casefold(coordinate[0])
-                if COULMNS.__contains__(temp) and row in range(0, 9):
-                    column = COULMNS[temp]
-                    if is_legal(row, column):
-                        position[row][column] = "■"
-                        board[row, column] = WHITE
-                        turn = BLACK
-                        GAMEOVER = is_over(board, WHITE)
-                    else:
-                        print("Illegal move, Try again!")
+                if len(coordinate) != 2 or not 48 < ord(coordinate[1]) < 57:
+                    print("Incorrect input, Try again!")
                 else:
-                    print("Wrong Column, Try again!")
-                print_grid()
-                print(evaluate(board))
-                # print(board)
-                if GAMEOVER:
-                    print("White won!")
-                    break
-                if np.all(board):
-                    print("Draw!")
-                    break
+                    row = int(coordinate[1]) - 1
+                    temp = str.casefold(coordinate[0])
+                    if COULMNS.__contains__(temp) and row in range(0, 9):
+                        column = COULMNS[temp]
+                        if is_legal(row, column):
+                            position[row][column] = "■"
+                            board[row, column] = WHITE
+                            turn = BLACK
+                            GAMEOVER = is_over(board, WHITE)
+                        else:
+                            print("Illegal move, Try again!")
+                    else:
+                        print("Wrong Column, Try again!")
+                    print_grid()
+                    print(evaluate(board))
+                    # print(board)
+                    if GAMEOVER:
+                        print('==============================================')
+                        print("White won!")
+                        print('==============================================')
+                        break
+                    if np.all(board):
+                        print("Draw!")
+                        break
 
     elif choice == 2:
         while not GAMEOVER:
@@ -395,31 +420,37 @@ if __name__ == '__main__':
             if turn == BLACK:
                 print("Black")
                 coordinate = input("Please enter the coordinate (Ex. a1):")
-                row = int(coordinate[1]) - 1
-                # Casefold lower-cases the input so no common input errors occur
-                temp = str.casefold(coordinate[0])
-                if COULMNS.__contains__(temp) and row in range(0, 9):
-                    # Gets the value from the Hashmap based on the key entered
-                    column = COULMNS[temp]
-                    if is_legal(row, column):
-                        position[row][column] = "□"
-                        board[row, column] = BLACK
-                        turn = WHITE
-                        GAMEOVER = is_over(board, BLACK)
-                    else:
-                        print("Illegal move, Try again!")
+                if len(coordinate) != 2 or not 48 < ord(coordinate[1]) < 57:
+                    print("Incorrect input, Try again!")
                 else:
-                    print("Index wrong, Try again!")
-                print_grid()
-                print(evaluate(board))
-                # print(board)
-                if GAMEOVER:
-                    print("Black won!")
-                    break
-                if np.all(board):
-                    print("Draw!")
-                    break
+                    row = int(coordinate[1]) - 1
+                    # Casefold lower-cases the input so no common input errors occur
+                    temp = str.casefold(coordinate[0])
+                    if COULMNS.__contains__(temp) and row in range(0, 9):
+                        # Gets the value from the Hashmap based on the key entered
+                        column = COULMNS[temp]
+                        if is_legal(row, column):
+                            position[row][column] = "□"
+                            board[row, column] = BLACK
+                            turn = WHITE
+                            GAMEOVER = is_over(board, BLACK)
+                        else:
+                            print("Illegal move, Try again!")
+                    else:
+                        print("Index wrong, Try again!")
+                    print_grid()
+                    print(evaluate(board))
+                    # print(board)
+                    if GAMEOVER:
+                        print('==============================================')
+                        print("Black won!")
+                        print('==============================================')
+                        break
+                    if np.all(board):
+                        print("Draw!")
+                        break
             if turn == WHITE:
+                print("Loading Move")
                 timer_start = time.time()
                 make_move(board, WHITE)
                 GAMEOVER = is_over(board, WHITE)
@@ -433,12 +464,13 @@ if __name__ == '__main__':
 
                 turn = BLACK
                 if GAMEOVER:
+                    print('==============================================')
                     print("White won!")
+                    print('==============================================')
                     break
                 if np.all(board):
                     print("Draw!")
                     break
-
 
     elif choice == 3:
         while not GAMEOVER:
@@ -446,31 +478,37 @@ if __name__ == '__main__':
             if turn == WHITE:
                 print("white")
                 coordinate = input("Please enter the coordinate (Ex. a1):")
-                row = int(coordinate[1]) - 1
-                # Casefold lower-cases the input so no common input errors occur
-                temp = str.casefold(coordinate[0])
-                if COULMNS.__contains__(temp) and row in range(0, 9):
-                    # Gets the value from the Hashmap based on the key entered
-                    column = COULMNS[temp]
-                    if is_legal(row, column):
-                        position[row][column] = "■"
-                        board[row, column] = WHITE
-                        turn = BLACK
-                        GAMEOVER = is_over(board, WHITE)
-                    else:
-                        print("Illegal move, Try again!")
+                if len(coordinate) != 2 or not 48 < ord(coordinate[1]) < 57:
+                    print("Incorrect input, Try again!")
                 else:
-                    print("Index wrong, Try again!")
-                print_grid()
-                print(evaluate(board))
-                # print(board)
-                if GAMEOVER:
-                    print("White won!")
-                    break
-                if np.all(board):
-                    print("Draw!")
-                    break
+                    row = int(coordinate[1]) - 1
+                    # Casefold lower-cases the input so no common input errors occur
+                    temp = str.casefold(coordinate[0])
+                    if COULMNS.__contains__(temp) and row in range(0, 9):
+                        # Gets the value from the Hashmap based on the key entered
+                        column = COULMNS[temp]
+                        if is_legal(row, column):
+                            position[row][column] = "■"
+                            board[row, column] = WHITE
+                            turn = BLACK
+                            GAMEOVER = is_over(board, WHITE)
+                        else:
+                            print("Illegal move, Try again!")
+                    else:
+                        print("Index wrong, Try again!")
+                    print_grid()
+                    print(evaluate(board))
+                    # print(board)
+                    if GAMEOVER:
+                        print('==============================================')
+                        print("White won!")
+                        print('==============================================')
+                        break
+                    if np.all(board):
+                        print("Draw!")
+                        break
             if turn == BLACK:
+                print("Loading Move")
                 timer_start = time.time()
                 make_move(board, BLACK)
                 GAMEOVER = is_over(board, BLACK)
@@ -487,8 +525,10 @@ if __name__ == '__main__':
                     print('==============================================')
                     print("Black won!")
                     print('==============================================')
-
                     break
                 if np.all(board):
                     print("Draw!")
                     break
+    else:
+        print("Invalid option")
+
