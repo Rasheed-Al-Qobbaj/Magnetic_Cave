@@ -373,7 +373,7 @@ if __name__ == '__main__':
                     else:
                         print("Index wrong, Try again!")
                     print_grid()
-                    print(evaluate(board))
+                    print(f'Board Evaluation +ve:BLACK, -ve(WHITE): {evaluate(board)}')
                     # print(board)
                     if GAMEOVER:
                         print('==============================================')
@@ -403,7 +403,7 @@ if __name__ == '__main__':
                     else:
                         print("Wrong Column, Try again!")
                     print_grid()
-                    print(evaluate(board))
+                    print(f'Board Evaluation +ve:BLACK, -ve(WHITE): {evaluate(board)}')
                     # print(board)
                     if GAMEOVER:
                         print('==============================================')
@@ -439,7 +439,7 @@ if __name__ == '__main__':
                     else:
                         print("Index wrong, Try again!")
                     print_grid()
-                    print(evaluate(board))
+                    print(f'Board Evaluation +ve:BLACK, -ve(WHITE): {evaluate(board)}')
                     # print(board)
                     if GAMEOVER:
                         print('==============================================')
@@ -456,9 +456,9 @@ if __name__ == '__main__':
                 GAMEOVER = is_over(board, WHITE)
                 # print('test1')
                 print_grid()
-                print(evaluate(board))
+                print(f'Board Evaluation +ve:BLACK, -ve(WHITE): {evaluate(board)}')
                 timer_end = time.time()
-                print(timer_end - timer_start)
+                print(f'Time taken from AI = {timer_end - timer_start}')
 
                 # print(board)
 
@@ -497,7 +497,7 @@ if __name__ == '__main__':
                     else:
                         print("Index wrong, Try again!")
                     print_grid()
-                    print(evaluate(board))
+                    print(f'Board Evaluation +ve:BLACK, -ve(WHITE): {evaluate(board)}')
                     # print(board)
                     if GAMEOVER:
                         print('==============================================')
@@ -514,9 +514,9 @@ if __name__ == '__main__':
                 GAMEOVER = is_over(board, BLACK)
                 # print('test1')
                 print_grid()
-                print(evaluate(board))
+                print(f'Board Evaluation +ve:BLACK, -ve(WHITE): {evaluate(board)}')
                 timer_end = time.time()
-                print(timer_end - timer_start)
+                print(f'Time taken from AI = {timer_end - timer_start}')
 
                 # print(board)
 
