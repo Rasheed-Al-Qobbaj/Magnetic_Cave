@@ -50,7 +50,10 @@ The following figures show possible configurations of the game
 
 ![Screenshot (252)](https://github.com/Rasheed-Al-Qobbaj/Magnetic_Cave/assets/70337488/d4e5e557-0e12-43a4-8e65-819e1cd1cb57)
 
+# Documents
+> [Project Description](AI_project.pdf)
 
+> [Report](Faris_1200546_Rasheed_1202474.pdf)
 
 # Authors
 * [Faris Abufarha](https://github.com/faris771)
